@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>跳跳鳥</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: #222;
+      font-family: "Microsoft JhengHei", sans-serif;
+      color: white;
+    }
+    canvas {
+      border: 2px solid #555;
+      background: #87CEEB; /* 天空藍 */
+    }
+    #ui {
+      margin-top: 10px;
+      text-align: center;
+    }
+    button {
+      margin: 5px;
+      padding: 8px 16px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #score, #highScore {
+      font-size: 20px;
+      margin: 8px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>跳跳鳥 🐦</h1>
+  <canvas id="gameCanvas" width="800" height="500"></canvas>
+  <div id="ui">
+    <div id="score">分數：0</div>
+    <div id="highScore">最高分：0</div>
+    <div>
+      <button id="easy">簡單</button>
+      <button id="medium">中級</button>
+      <button id="hard">困難</button>
+      <button id="restart">重新開始</button>
+    </div>
+    <p>操作：按下 <strong>空白鍵</strong> 讓鳥跳躍｜避開上下樹木！</p>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const scoreEl = document.getElementById('score');
+    const highScoreEl = document.getElementById('highScore');
+
+    // 設定
+    let difficulty = 'medium'; // 預設中級
+    const config = {
+      easy:    { speed: 3, gap: 200, minHeight: 100, maxHeight: 200 },
+      medium:  { speed: 4, gap: 160, minHeight: 80,  maxHeight: 160 },
+      hard:    { speed: 5, gap: 120, minHeight: 60,  maxHeight: 120 }
+    };
+
+    // 遊戲狀態
+    let bird = { x: 150, y: 250, vy: 0, radius: 15 };
+    let pipes = [];
+    let score = 0;
+    let highScore = localStorage.getItem('jumpBirdHighScore') || 0;
+    let gameRunning = false;
+    let frameCount = 0;
+    let passedPipe = [];
+
+    highScoreEl.textContent = `最高分：${highScore}`;
+
+    // 初始化
+    function init() {
+      bird = { x: 150, y: 250, vy: 0, radius: 15 };
+      pipes = [];
+      score = 0;
+      passedPipe = [];
+      frameCount = 0;
+      gameRunning = true;
+      scoreEl.textContent = `分數：${score}`;
+    }
+
+    // 生成障礙（上下樹木）
+    function spawnPipe() {
+      const gap = config[difficulty].gap;
+      const minHeight = config[difficulty].minHeight;
+      const maxHeight = config[difficulty].maxHeight;
+
+      const topHeight = minHeight + Math.random() * (maxHeight - minHeight);
+      const bottomY = topHeight + gap;
+
+      pipes.push({
+        x: canvas.width,
+        topHeight,
+        bottomY,
+        width: 60,
+        passed: false
+      });
+    }
+
+    // 繪製樹木（簡易障礙）
+    function drawPipe(pipe) {
+      // 上方樹木（倒掛）
+      ctx.fillStyle = '#2E8B57'; // 深綠
+      ctx.fillRect(pipe.x, 0, pipe.width, pipe.topHeight);
+      // 加點樹葉效果
+      ctx.fillStyle = '#3CB371';
+      ctx.fillRect(pipe.x - 5, pipe.topHeight - 20, pipe.width + 10, 20);
+
+      // 下方樹木
+      ctx.fillStyle = '#2E8B57';
+      ctx.fillRect(pipe.x, pipe.bottomY, pipe.width, canvas.height - pipe.bottomY);
+      ctx.fillStyle = '#3CB371';
+      ctx.fillRect(pipe.x - 5, pipe.bottomY, pipe.width + 10, 20);
+    }
+
+    // 繪製鳥
+    function drawBird() {
+      ctx.fillStyle = '#FFD700'; // 金色身體
+      ctx.beginPath();
+      ctx.arc(bird.x, bird.y, bird.radius, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 眼睛
+      ctx.fillStyle = 'black';
+      ctx.beginPath();
+      ctx.arc(bird.x + 6, bird.y - 3, 3, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 喙（三角形）
+      ctx.fillStyle = '#FF8C00';
+      ctx.beginPath();
+      ctx.moveTo(bird.x + 12, bird.y);
+      ctx.lineTo(bird.x + 22, bird.y - 5);
+      ctx.lineTo(bird.x + 22, bird.y + 5);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // 碰撞檢測
+    function checkCollision() {
+      // 邊界
+      if (bird.y - bird.radius < 0 || bird.y + bird.radius > canvas.height) return true;
+
+      for (let pipe of pipes) {
+        if (bird.x + bird.radius > pipe.x && bird.x - bird.radius < pipe.x + pipe.width) {
+          if (bird.y - bird.radius < pipe.topHeight || bird.y + bird.radius > pipe.bottomY) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    // 遊戲主迴圈
+    function update() {
+      if (!gameRunning) return;
+
+      // 更新鳥（重力）
+      bird.vy += 0.5; // 重力
+      bird.y += bird.vy;
+
+      // 生成障礙（每 90 幀）
+      frameCount++;
+      if (frameCount % 90 === 0) {
+        spawnPipe();
+      }
+
+      // 更新障礙位置
+      const speed = config[difficulty].speed;
+      for (let i = pipes.length - 1; i >= 0; i--) {
+        pipes[i].x -= speed;
+
+        // 計分：當鳥通過障礙中央
+        if (!pipes[i].passed && bird.x > pipes[i].x + pipes[i].width) {
+          pipes[i].passed = true;
+          score++;
+          scoreEl.textContent = `分數：${score}`;
+        }
+
+        // 清除已離開畫面的障礙
+        if (pipes[i].x + pipes[i].width < 0) {
+          pipes.splice(i, 1);
+        }
+      }
+
+      // 碰撞檢測
+      if (checkCollision()) {
+        gameRunning = false;
+        // 更新最高分
+        if (score > highScore) {
+          highScore = score;
+          localStorage.setItem('jumpBirdHighScore', highScore);
+          highScoreEl.textContent = `最高分：${highScore}`;
+        }
+
+        // 評語
+        let comment = '';
+        if (score === 0) comment = '再試一次吧～鳥兒還在學習飛翔！';
+        else if (score < 5) comment = '不錯喔～鳥兒已經能短暫飛行了！';
+        else if (score < 10) comment = '厲害！鳥兒快要成為飛行高手了！';
+        else comment = '飛翔大師！這隻鳥簡直像風一樣自由！';
+
+        alert(`遊戲結束！\n分數：${score}\n${comment}`);
+        return;
+      }
+
+      // 繪製
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // 繪製背景樹（靜態，增強氛圍）
+      ctx.fillStyle = '#228B22';
+      for (let x = -30; x < canvas.width; x += 80) {
+        // 上方樹叢剪影
+        ctx.fillRect(x, -20, 40, 40);
+        // 下方樹叢
+        ctx.fillRect(x + 20, canvas.height - 20, 40, 40);
+      }
+
+      // 畫障礙
+      pipes.forEach(drawPipe);
+
+      // 畫鳥
+      drawBird();
+
+      requestAnimationFrame(update);
+    }
+
+    // 跳躍
+    function jump() {
+      if (!gameRunning) return;
+      bird.vy = -7; // 向上跳
+    }
+
+    // 鍵盤控制
+    document.addEventListener('keydown', e => {
+      if (e.code === 'Space') {
+        if (!gameRunning) {
+          init();
+          update();
+        } else {
+          jump();
+        }
+        e.preventDefault();
+      }
+    });
+
+    // 點擊空白處也可跳躍
+    canvas.addEventListener('click', () => {
+      if (gameRunning) jump();
+      else {
+        init();
+        update();
+      }
+    });
+
+    // 難度按鈕
+    document.getElementById('easy').onclick = () => { difficulty = 'easy'; };
+    document.getElementById('medium').onclick = () => { difficulty = 'medium'; };
+    document.getElementById('hard').onclick = () => { difficulty = 'hard'; };
+    document.getElementById('restart').onclick = () => {
+      init();
+      update();
+    };
+
+    // 開始畫面提示
+    ctx.fillStyle = '#333';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = 'white';
+    ctx.font = '30px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('跳跳鳥', canvas.width/2, canvas.height/2 - 40);
+    ctx.font = '20px Arial';
+    ctx.fillText('按空白鍵開始遊戲', canvas.width/2, canvas.height/2 + 20);
+  </script>
+</body>
+</html>
