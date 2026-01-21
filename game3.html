@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <title>跳跳鳥</title>
+  <title>✨ 跳跳鳥 Pro 🐦</title>
   <style>
     body {
       margin: 0;
@@ -10,34 +10,94 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      background: #222;
-      font-family: "Microsoft JhengHei", sans-serif;
+      background: linear-gradient(135deg, #1a1a2e, #16213e);
+      font-family: "Microsoft JhengHei", "Segoe UI", sans-serif;
       color: white;
+      overflow: hidden;
     }
     canvas {
-      border: 2px solid #555;
-      background: #87CEEB; /* 天空藍 */
+      border: 4px solid #4cc9f0;
+      border-radius: 12px;
+      box-shadow: 
+        0 0 30px rgba(76, 201, 240, 0.6),
+        0 0 60px rgba(106, 90, 205, 0.3);
+      transition: transform 0.2s;
+    }
+    canvas:hover {
+      transform: scale(1.01);
     }
     #ui {
-      margin-top: 10px;
+      margin-top: 20px;
       text-align: center;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 15px 25px;
+      border-radius: 16px;
+      width: 800px;
+      backdrop-filter: blur(5px);
+      border: 1px solid rgba(255,255,255,0.1);
     }
     button {
-      margin: 5px;
-      padding: 8px 16px;
-      font-size: 16px;
+      margin: 6px;
+      padding: 10px 20px;
+      font-size: 17px;
       cursor: pointer;
+      background: linear-gradient(to bottom, #4361ee, #3a0ca3);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      transition: all 0.2s;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+      background: linear-gradient(to bottom, #4870f0, #401cb0);
+    }
+    button:active {
+      transform: translateY(1px);
     }
     #score, #highScore {
+      font-size: 24px;
+      margin: 10px 0;
+      font-weight: bold;
+      text-shadow: 0 0 8px rgba(255,255,255,0.5);
+    }
+    #multiplier {
+      color: gold;
       font-size: 20px;
-      margin: 8px 0;
+      height: 24px;
+      margin-bottom: 8px;
+      font-weight: bold;
+      text-shadow: 0 0 10px rgba(255,215,0,0.7);
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+    .score-popup {
+      position: absolute;
+      color: #FFD700;
+      font-weight: bold;
+      font-size: 20px;
+      pointer-events: none;
+      opacity: 1;
+      animation: floatUp 1s forwards;
+    }
+    @keyframes floatUp {
+      0% { transform: translateY(0); opacity: 1; }
+      100% { transform: translateY(-50px); opacity: 0; }
     }
   </style>
 </head>
 <body>
-  <h1>跳跳鳥 🐦</h1>
-  <canvas id="gameCanvas" width="800" height="500"></canvas>
+  <h1 style="font-size: 36px; margin-bottom: 10px; text-shadow: 0 0 15px #4cc9f0;">✨ 跳跳鳥 Pro 🐦</h1>
+  <div id="gameContainer" style="position: relative;">
+    <canvas id="gameCanvas" width="800" height="500"></canvas>
+  </div>
   <div id="ui">
+    <div id="multiplier"></div>
     <div id="score">分數：0</div>
     <div id="highScore">最高分：0</div>
     <div>
@@ -46,7 +106,9 @@
       <button id="hard">困難</button>
       <button id="restart">重新開始</button>
     </div>
-    <p>操作：按下 <strong>空白鍵</strong> 讓鳥跳躍｜避開上下樹木！</p>
+    <p style="margin-top: 12px; font-size: 16px;">
+      操作：按下 <strong>空白鍵</strong> 或 <strong>點擊畫面</strong> 跳躍｜收集 💫 星星獲得 <strong>2 倍分數</strong>！
+    </p>
   </div>
 
   <script>
@@ -54,97 +116,271 @@
     const ctx = canvas.getContext('2d');
     const scoreEl = document.getElementById('score');
     const highScoreEl = document.getElementById('highScore');
+    const multiplierEl = document.getElementById('multiplier');
+    const gameContainer = document.getElementById('gameContainer');
 
-    // 設定
-    let difficulty = 'medium'; // 預設中級
+    // 難度設定
+    let difficulty = 'medium';
     const config = {
-      easy:    { speed: 3, gap: 200, minHeight: 100, maxHeight: 200 },
-      medium:  { speed: 4, gap: 160, minHeight: 80,  maxHeight: 160 },
-      hard:    { speed: 5, gap: 120, minHeight: 60,  maxHeight: 120 }
+      easy:    { speed: 3, gap: 200, minHeight: 100, maxHeight: 200, starChance: 0.03 },
+      medium:  { speed: 4, gap: 160, minHeight: 80,  maxHeight: 160, starChance: 0.02 },
+      hard:    { speed: 5, gap: 120, minHeight: 60,  maxHeight: 120, starChance: 0.015 }
     };
 
     // 遊戲狀態
-    let bird = { x: 150, y: 250, vy: 0, radius: 15 };
+    let bird = { x: 150, y: 250, vy: 0, radius: 15, wingAngle: 0, angle: 0 };
     let pipes = [];
+    let stars = [];
+    let particles = [];
+    let popups = [];
     let score = 0;
-    let highScore = localStorage.getItem('jumpBirdHighScore') || 0;
+    let highScore = parseInt(localStorage.getItem('jumpBirdHighScore')) || 0;
     let gameRunning = false;
     let frameCount = 0;
-    let passedPipe = [];
+    let multiplier = 1;
+    let multiplierTimer = 0;
+    let lastJumpTime = 0;
+    const jumpCooldown = 150; // 毫秒
 
     highScoreEl.textContent = `最高分：${highScore}`;
 
     // 初始化
     function init() {
-      bird = { x: 150, y: 250, vy: 0, radius: 15 };
+      bird = { x: 150, y: 250, vy: 0, radius: 15, wingAngle: 0, angle: 0 };
       pipes = [];
+      stars = [];
+      particles = [];
+      popups = [];
       score = 0;
-      passedPipe = [];
+      multiplier = 1;
+      multiplierTimer = 0;
+      multiplierEl.textContent = '';
       frameCount = 0;
       gameRunning = true;
       scoreEl.textContent = `分數：${score}`;
     }
 
-    // 生成障礙（上下樹木）
+    // 生成障礙
     function spawnPipe() {
       const gap = config[difficulty].gap;
       const minHeight = config[difficulty].minHeight;
       const maxHeight = config[difficulty].maxHeight;
-
       const topHeight = minHeight + Math.random() * (maxHeight - minHeight);
-      const bottomY = topHeight + gap;
-
       pipes.push({
         x: canvas.width,
         topHeight,
-        bottomY,
-        width: 60,
+        bottomY: topHeight + gap,
+        width: 70,
         passed: false
       });
+
+      if (Math.random() < config[difficulty].starChance) {
+        stars.push({
+          x: canvas.width + 35,
+          y: topHeight + gap / 2,
+          radius: 12,
+          collected: false,
+          rotation: 0
+        });
+      }
     }
 
-    // 繪製樹木（簡易障礙）
+    // 背景漸變（根據分數改變時間）
+    function getSkyGradient() {
+      const progress = Math.min(score / 30, 1); // 30 分後完全日落
+      const r1 = Math.floor(135 + 120 * progress);
+      const g1 = Math.floor(206 - 100 * progress);
+      const b1 = Math.floor(235 - 150 * progress);
+      const r2 = Math.floor(224 - 100 * progress);
+      const g2 = Math.floor(247 - 150 * progress);
+      const b2 = Math.floor(250 - 180 * progress);
+      const skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      skyGradient.addColorStop(0, `rgb(${r1}, ${g1}, ${b1})`);
+      skyGradient.addColorStop(1, `rgb(${r2}, ${g2}, ${b2})`);
+      return skyGradient;
+    }
+
+    // 雲朵
+    function drawCloud(x, y, size) {
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+      ctx.beginPath();
+      ctx.arc(x, y, size * 0.5, 0, Math.PI * 2);
+      ctx.arc(x + size * 0.4, y - size * 0.2, size * 0.45, 0, Math.PI * 2);
+      ctx.arc(x + size * 0.8, y, size * 0.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // 繪製水管（經典 Flappy 風格）
     function drawPipe(pipe) {
-      // 上方樹木（倒掛）
-      ctx.fillStyle = '#2E8B57'; // 深綠
-      ctx.fillRect(pipe.x, 0, pipe.width, pipe.topHeight);
-      // 加點樹葉效果
-      ctx.fillStyle = '#3CB371';
-      ctx.fillRect(pipe.x - 5, pipe.topHeight - 20, pipe.width + 10, 20);
+      const pipeTop = pipe.topHeight;
+      const pipeBottom = pipe.bottomY;
 
-      // 下方樹木
-      ctx.fillStyle = '#2E8B57';
-      ctx.fillRect(pipe.x, pipe.bottomY, pipe.width, canvas.height - pipe.bottomY);
-      ctx.fillStyle = '#3CB371';
-      ctx.fillRect(pipe.x - 5, pipe.bottomY, pipe.width + 10, 20);
+      // 上管
+      ctx.fillStyle = '#7CFC00';
+      ctx.fillRect(pipe.x, 0, pipe.width, pipeTop);
+      // 上管帽
+      ctx.fillStyle = '#32CD32';
+      ctx.fillRect(pipe.x - 5, pipeTop - 20, pipe.width + 10, 20);
+
+      // 下管
+      ctx.fillStyle = '#7CFC00';
+      ctx.fillRect(pipe.x, pipeBottom, pipe.width, canvas.height - pipeBottom);
+      // 下管帽
+      ctx.fillStyle = '#32CD32';
+      ctx.fillRect(pipe.x - 5, pipeBottom, pipe.width + 10, 20);
     }
 
-    // 繪製鳥
-    function drawBird() {
-      ctx.fillStyle = '#FFD700'; // 金色身體
+    // 繪製星星（旋轉 + 發光）
+    function drawStar(star) {
+      if (star.collected) return;
+      star.rotation += 0.05;
+      ctx.save();
+      ctx.translate(star.x, star.y);
+      ctx.rotate(star.rotation);
+      ctx.shadowColor = '#FFD700';
+      ctx.shadowBlur = 15;
+      ctx.fillStyle = '#FFD700';
       ctx.beginPath();
-      ctx.arc(bird.x, bird.y, bird.radius, 0, Math.PI * 2);
-      ctx.fill();
-
-      // 眼睛
-      ctx.fillStyle = 'black';
-      ctx.beginPath();
-      ctx.arc(bird.x + 6, bird.y - 3, 3, 0, Math.PI * 2);
-      ctx.fill();
-
-      // 喙（三角形）
-      ctx.fillStyle = '#FF8C00';
-      ctx.beginPath();
-      ctx.moveTo(bird.x + 12, bird.y);
-      ctx.lineTo(bird.x + 22, bird.y - 5);
-      ctx.lineTo(bird.x + 22, bird.y + 5);
+      for (let i = 0; i < 5; i++) {
+        ctx.lineTo(
+          Math.cos((i * 4 - 1) * Math.PI / 5) * star.radius,
+          -Math.sin((i * 4 - 1) * Math.PI / 5) * star.radius
+        );
+        ctx.lineTo(
+          Math.cos((i * 4) * Math.PI / 5) * star.radius / 2,
+          -Math.sin((i * 4) * Math.PI / 5) * star.radius / 2
+        );
+      }
       ctx.closePath();
       ctx.fill();
+      ctx.restore();
+      ctx.shadowBlur = 0;
+    }
+
+    // 繪製鳥（超可愛版）
+    function drawBird() {
+      // 身體角度
+      bird.angle = Math.min(bird.vy * 0.1, 0.8);
+      ctx.save();
+      ctx.translate(bird.x, bird.y);
+      ctx.rotate(bird.angle);
+
+      // 身體
+      ctx.fillStyle = '#FFD700';
+      ctx.beginPath();
+      ctx.ellipse(0, 0, bird.radius, bird.radius - 2, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 眼睛白
+      ctx.fillStyle = 'white';
+      ctx.beginPath();
+      ctx.arc(5, -4, 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 瞳孔
+      ctx.fillStyle = 'black';
+      ctx.beginPath();
+      ctx.arc(6, -4, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 高光
+      ctx.fillStyle = 'white';
+      ctx.beginPath();
+      ctx.arc(6.5, -4.5, 0.8, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 喙
+      ctx.fillStyle = '#FF8C00';
+      ctx.beginPath();
+      ctx.moveTo(12, 0);
+      ctx.lineTo(22, -4);
+      ctx.lineTo(22, 4);
+      ctx.closePath();
+      ctx.fill();
+
+      // 翅膀（動態）
+      const wingOffset = Math.sin(bird.wingAngle) * 4;
+      ctx.fillStyle = '#FFA500';
+      ctx.beginPath();
+      ctx.ellipse(-8, wingOffset, 10, 5, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    // 分數彈跳動畫
+    function createScorePopup(x, y, text) {
+      popups.push({ x, y, text, life: 60 });
+    }
+
+    function updatePopups() {
+      for (let i = popups.length - 1; i >= 0; i--) {
+        const p = popups[i];
+        p.life--;
+        if (p.life <= 0) {
+          popups.splice(i, 1);
+        }
+      }
+    }
+
+    function drawPopups() {
+      popups.forEach(p => {
+        const alpha = p.life / 60;
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = '#FFD700';
+        ctx.font = 'bold 20px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(p.text, p.x, p.y - (60 - p.life) * 0.8);
+      });
+      ctx.globalAlpha = 1;
+    }
+
+    // 粒子爆炸
+    function createExplosion(x, y) {
+      for (let i = 0; i < 150; i++) {
+        particles.push({
+          x: x,
+          y: y,
+          vx: (Math.random() - 0.5) * 12,
+          vy: (Math.random() - 0.5) * 12,
+          life: 40 + Math.random() * 20,
+          color: `hsl(${30 + Math.random() * 30}, 100%, ${50 + Math.random() * 30}%)`
+        });
+      }
+      // 震動效果
+      canvas.style.transform = 'translateX(5px)';
+      setTimeout(() => canvas.style.transform = 'translateX(-5px)', 50);
+      setTimeout(() => canvas.style.transform = 'translateX(3px)', 100);
+      setTimeout(() => canvas.style.transform = 'translateX(-3px)', 150);
+      setTimeout(() => canvas.style.transform = '', 200);
+    }
+
+    function updateParticles() {
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.15;
+        p.life--;
+        if (p.life <= 0) {
+          particles.splice(i, 1);
+        }
+      }
+    }
+
+    function drawParticles() {
+      particles.forEach(p => {
+        ctx.globalAlpha = p.life / 60;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      ctx.globalAlpha = 1;
     }
 
     // 碰撞檢測
     function checkCollision() {
-      // 邊界
       if (bird.y - bird.radius < 0 || bird.y + bird.radius > canvas.height) return true;
 
       for (let pipe of pipes) {
@@ -154,90 +390,147 @@
           }
         }
       }
+
+      for (let star of stars) {
+        if (!star.collected) {
+          const dx = bird.x - star.x;
+          const dy = bird.y - star.y;
+          if (Math.sqrt(dx*dx + dy*dy) < bird.radius + star.radius) {
+            star.collected = true;
+            multiplier = 2;
+            multiplierTimer = 300;
+            multiplierEl.textContent = '分數 x2！';
+            createScorePopup(star.x, star.y, 'x2!');
+            playSound(1);
+          }
+        }
+      }
       return false;
     }
 
-    // 遊戲主迴圈
+    // 音效模擬
+    function playSound(type) {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = type === 1 ? 'square' : 'sine';
+        osc.frequency.value = type === 1 ? 880 : 180;
+        gain.gain.value = type === 1 ? 0.08 : 0.15;
+        osc.start();
+        setTimeout(() => osc.stop(), type === 1 ? 150 : 400);
+      } catch (e) {}
+    }
+
+    // 主迴圈
     function update() {
       if (!gameRunning) return;
 
-      // 更新鳥（重力）
-      bird.vy += 0.5; // 重力
-      bird.y += bird.vy;
+      // 倍率計時
+      if (multiplierTimer > 0) {
+        multiplierTimer--;
+        if (multiplierTimer <= 0) {
+          multiplier = 1;
+          multiplierEl.textContent = '';
+        }
+      }
 
-      // 生成障礙（每 90 幀）
+      // 鳥物理
+      bird.vy += 0.55;
+      bird.y += bird.vy;
+      bird.wingAngle += 0.3;
+
+      // 生成障礙
       frameCount++;
       if (frameCount % 90 === 0) {
         spawnPipe();
       }
 
-      // 更新障礙位置
+      // 更新障礙
       const speed = config[difficulty].speed;
       for (let i = pipes.length - 1; i >= 0; i--) {
         pipes[i].x -= speed;
-
-        // 計分：當鳥通過障礙中央
         if (!pipes[i].passed && bird.x > pipes[i].x + pipes[i].width) {
           pipes[i].passed = true;
-          score++;
+          const addScore = multiplier;
+          score += addScore;
           scoreEl.textContent = `分數：${score}`;
+          createScorePopup(bird.x, bird.y - 30, `+${addScore}`);
+          playSound(1);
         }
-
-        // 清除已離開畫面的障礙
         if (pipes[i].x + pipes[i].width < 0) {
           pipes.splice(i, 1);
         }
       }
 
-      // 碰撞檢測
+      // 更新星星
+      for (let i = stars.length - 1; i >= 0; i--) {
+        stars[i].x -= speed;
+        if (stars[i].x + stars[i].radius < 0 || stars[i].collected) {
+          stars.splice(i, 1);
+        }
+      }
+
+      // 碰撞
       if (checkCollision()) {
         gameRunning = false;
-        // 更新最高分
+        createExplosion(bird.x, bird.y);
+        playSound(0);
+
         if (score > highScore) {
           highScore = score;
           localStorage.setItem('jumpBirdHighScore', highScore);
           highScoreEl.textContent = `最高分：${highScore}`;
         }
 
-        // 評語
         let comment = '';
         if (score === 0) comment = '再試一次吧～鳥兒還在學習飛翔！';
         else if (score < 5) comment = '不錯喔～鳥兒已經能短暫飛行了！';
         else if (score < 10) comment = '厲害！鳥兒快要成為飛行高手了！';
-        else comment = '飛翔大師！這隻鳥簡直像風一樣自由！';
+        else if (score < 20) comment = '飛行達人！穿過風暴的勇者！';
+        else comment = '傳說級飛行大師！這隻鳥簡直像風一樣自由！';
 
         alert(`遊戲結束！\n分數：${score}\n${comment}`);
         return;
       }
 
       // 繪製
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = getSkyGradient();
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // 繪製背景樹（靜態，增強氛圍）
-      ctx.fillStyle = '#228B22';
-      for (let x = -30; x < canvas.width; x += 80) {
-        // 上方樹叢剪影
-        ctx.fillRect(x, -20, 40, 40);
-        // 下方樹叢
-        ctx.fillRect(x + 20, canvas.height - 20, 40, 40);
-      }
+      // 雲朵（三層）
+      drawCloud(100 + (frameCount * 0.3) % 900, 80, 40);
+      drawCloud(400 + (frameCount * 0.2) % 1000, 60, 50);
+      drawCloud(700 + (frameCount * 0.25) % 800, 100, 45);
 
-      // 畫障礙
+      // 障礙
       pipes.forEach(drawPipe);
+      stars.forEach(drawStar);
 
-      // 畫鳥
+      // 鳥
       drawBird();
+
+      // 效果
+      updateParticles();
+      drawParticles();
+      updatePopups();
+      drawPopups();
 
       requestAnimationFrame(update);
     }
 
-    // 跳躍
+    // 跳躍（防連點）
     function jump() {
-      if (!gameRunning) return;
-      bird.vy = -7; // 向上跳
+      const now = Date.now();
+      if (!gameRunning || now - lastJumpTime < jumpCooldown) return;
+      lastJumpTime = now;
+      bird.vy = -8;
+      playSound(1);
     }
 
-    // 鍵盤控制
+    // 控制
     document.addEventListener('keydown', e => {
       if (e.code === 'Space') {
         if (!gameRunning) {
@@ -247,10 +540,14 @@
           jump();
         }
         e.preventDefault();
+      } else if (e.key === 'r' || e.key === 'R') {
+        if (!gameRunning) {
+          init();
+          update();
+        }
       }
     });
 
-    // 點擊空白處也可跳躍
     canvas.addEventListener('click', () => {
       if (gameRunning) jump();
       else {
@@ -260,23 +557,55 @@
     });
 
     // 難度按鈕
-    document.getElementById('easy').onclick = () => { difficulty = 'easy'; };
-    document.getElementById('medium').onclick = () => { difficulty = 'medium'; };
-    document.getElementById('hard').onclick = () => { difficulty = 'hard'; };
+    document.getElementById('easy').onclick = () => difficulty = 'easy';
+    document.getElementById('medium').onclick = () => difficulty = 'medium';
+    document.getElementById('hard').onclick = () => difficulty = 'hard';
     document.getElementById('restart').onclick = () => {
       init();
       update();
     };
 
-    // 開始畫面提示
-    ctx.fillStyle = '#333';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = 'white';
-    ctx.font = '30px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText('跳跳鳥', canvas.width/2, canvas.height/2 - 40);
-    ctx.font = '20px Arial';
-    ctx.fillText('按空白鍵開始遊戲', canvas.width/2, canvas.height/2 + 20);
+    // 開場動畫
+    function drawStartScreen() {
+      ctx.fillStyle = getSkyGradient();
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      drawCloud(200, 80, 40);
+      drawCloud(500, 60, 50);
+      drawCloud(700, 100, 45);
+      
+      // 地面
+      ctx.fillStyle = '#228B22';
+      ctx.fillRect(0, canvas.height - 20, canvas.width, 20);
+      
+      // 鳥（飛入動畫）
+      const flyInX = Math.min(150, frameCount * 2);
+      ctx.save();
+      ctx.translate(flyInX, 250);
+      ctx.fillStyle = '#FFD700';
+      ctx.beginPath();
+      ctx.arc(0, 0, 15, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = 'black';
+      ctx.beginPath();
+      ctx.arc(6, -3, 3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 44px "Microsoft JhengHei"';
+      ctx.textAlign = 'center';
+      ctx.fillText('✨ 跳跳鳥 Pro', canvas.width/2, canvas.height/2 - 50);
+      ctx.font = '20px "Microsoft JhengHei"';
+      ctx.fillText('按空白鍵或點擊畫面開始遊戲', canvas.width/2, canvas.height/2 + 20);
+      ctx.fillText('收集 💫 星星獲得 2 倍分數！', canvas.width/2, canvas.height/2 + 50);
+
+      if (frameCount < 100) {
+        frameCount++;
+        requestAnimationFrame(drawStartScreen);
+      }
+    }
+
+    drawStartScreen();
   </script>
 </body>
 </html>
