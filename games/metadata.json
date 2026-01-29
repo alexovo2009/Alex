@@ -1,0 +1,12 @@
+{
+  "games": [
+    {
+      "id": "demo_click",
+      "title": "Demo Click",
+      "description": "一個簡單的點擊反應遊戲。",
+      "path": "demo_click/index.html",
+      "tags": ["簡單","反應","點擊"],
+      "difficulty": "Easy"
+    }
+  ]
+}

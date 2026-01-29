@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Demo Click</title>
+  <style>
+    :root { --bg: #111; --fg: #eee; --accent: #4CAF50; }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; font-family: Arial, sans-serif; background: var(--bg); color: var(--fg); }
+    #wrapper { display: grid; grid-template-rows: auto 1fr auto; min-height: 100%; }
+    header { padding: 1rem; text-align: center; }
+    main { display: grid; place-items: center; padding: 1rem; }
+    canvas { background: #222; border: 1px solid #444; }
+    #hud { display: flex; gap: 1rem; align-items: center; justify-content: center; padding: 1rem; }
+    button { padding: 0.5rem 1rem; border: none; background: var(--accent); color: white; cursor: pointer; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <div id="wrapper">
+    <header>
+      <h1>Demo Click</h1>
+      <p>純前端點擊反應遊戲，無依賴框架。</p>
+    </header>
+    <main>
+      <canvas id="game" width="480" height="320" tabindex="0" aria-label="遊戲畫布"></canvas>
+    </main>
+    <footer id="hud">
+      <span id="score">分數: 0</span>
+      <span id="best">最佳: 0</span>
+      <button id="start">開始</button>
+    </footer>
+  </div>
+  <script>
+    (function(){
+      const canvas = document.getElementById('game');
+      const ctx = canvas.getContext('2d');
+      let x = 100, y = 80, r = 20, vx = 2, vy = 1.5;
+      let score = 0, best = parseInt(localStorage.getItem('demo_click_best')||'0',10);
+      let running = false;
+      const scoreEl = document.getElementById('score');
+      const bestEl = document.getElementById('best');
+      bestEl.textContent = '最佳: ' + best;
+      function draw(){
+        ctx.clearRect(0,0, canvas.width, canvas.height);
+        ctx.fillStyle = '#2c7';
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI*2); ctx.fill();
+        x += vx; y += vy;
+        if (x < r || x > canvas.width - r) vx = -vx;
+        if (y < r || y > canvas.height - r) vy = -vy;
+        if (running) requestAnimationFrame(draw);
+      }
+      canvas.addEventListener('click', (e)=>{
+        const rect = canvas.getBoundingClientRect();
+        const cx = e.clientX - rect.left; const cy = e.clientY - rect.top;
+        const dx = cx - x, dy = cy - y; if (dx*dx + dy*dy <= r*r){ score++; scoreEl.textContent = '分數: ' + score; if (score > best){ best = score; localStorage.setItem('demo_click_best', best); bestEl.textContent = '最佳: ' + best; } }
+      });
+      document.getElementById('start').addEventListener('click', ()=>{ score = 0; scoreEl.textContent = '分數: 0'; x = 100; y = 80; vx = 2; vy = 1.5; running = true; canvas.focus(); requestAnimationFrame(draw); });
+    })();
+  </script>
+</body>
+</html>
