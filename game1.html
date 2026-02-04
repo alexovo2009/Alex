@@ -39,10 +39,18 @@
         }
 
         #score-info {
-            margin-top: 15px;
+            position: absolute;
+            top: 10px;
+            left: 10px;
             font-size: 20px;
             display: flex;
-            justify-content: space-around;
+            flex-direction: column;
+            gap: 5px;
+            z-index: 5;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(76, 175, 80, 0.5);
         }
         #score, #high-score {
             color: #4CAF50;
@@ -90,9 +98,22 @@
         #start-screen h2 {
             color: #4CAF50;
             margin-top: 0;
+            font-size: 36px;
+            text-shadow: 0 0 10px rgba(76, 175, 80, 0.7);
         }
         #start-screen {
             display: block;
+        }
+        #start-screen p {
+            margin: 10px 0 15px 0;
+            font-size: 16px;
+            color: #ddd;
+        }
+        #start-instruction {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #aaa;
+            font-style: italic;
         }
         #game-over {
             display: none;
@@ -195,16 +216,17 @@
         <div id="instructions">方向鍵控制｜空格鍵暫停</div>
         
         <div id="start-screen">
-            <h2>🐍 貪食蛇遊戲</h2>
+            <h2>🐍 貪食蛇</h2>
             <p>吃掉紅色蘋果來成長！</p>
             <button id="start-btn">開始遊戲！</button>
+            <div id="start-instruction">按任意鍵開始遊戲</div>
         </div>
 
         <div id="game-over">
-            <h2>遊戲結束!</h2>
+            <h2>Game Over</h2>
             <div id="final-score">分數: 0</div>
             <div id="feedback"></div>
-            <button id="restart-btn">再來一局！</button>
+            <button id="restart-btn">再玩一次</button>
         </div>
     </div>
 
@@ -645,6 +667,17 @@
         // 點擊 canvas 也可開始（手機友好）
         canvas.addEventListener('click', () => {
             if (!gameRunning && startScreen.style.display !== 'none') {
+                initGame();
+            }
+        });
+
+        // 按任意鍵開始遊戲
+        document.addEventListener('keydown', (e) => {
+            if (!gameRunning && startScreen.style.display !== 'none') {
+                // 防止空格鍵觸發暫停功能
+                if (e.key === ' ') {
+                    e.preventDefault();
+                }
                 initGame();
             }
         });

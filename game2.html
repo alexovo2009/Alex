@@ -89,36 +89,262 @@
             0%, 100% { opacity: 1; }
             50% { opacity: 0.6; }
         }
+
+        /* 開始畫面樣式 */
+        .start-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #2c3e50, #4a6491);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            color: white;
+            font-family: "Microsoft JhengHei", "Segoe UI", sans-serif;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .start-content {
+            max-width: 800px;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .game-title {
+            font-size: 5rem;
+            font-weight: bold;
+            margin: 0 0 10px 0;
+            color: #fff;
+            text-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            letter-spacing: 3px;
+            background: linear-gradient(45deg, #f9f3e9, #e8d9a7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.8rem;
+            margin-bottom: 40px;
+            color: #d4e6ff;
+            opacity: 0.9;
+        }
+
+        .instructions {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+            padding: 20px;
+            margin: 30px 0;
+            font-size: 1.2rem;
+            line-height: 1.6;
+            text-align: left;
+            display: inline-block;
+            border-left: 4px solid #5a9c6e;
+        }
+
+        .instructions p {
+            margin: 10px 0;
+        }
+
+        .start-prompt {
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            animation: pulsePrompt 2s infinite;
+        }
+
+        @keyframes pulsePrompt {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.9; }
+        }
+
+        .start-prompt p {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin: 0 0 10px 0;
+            color: #ffd166;
+        }
+
+        .key-hint {
+            font-size: 1rem;
+            color: #a8d5e2;
+            font-style: italic;
+        }
+
+        .game-main {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 按鈕樣式改進 */
+        button#hint {
+            background: linear-gradient(to bottom, #6c5ce7, #5b4fcf);
+        }
+
+        button#show-stats {
+            background: linear-gradient(to bottom, #6c7b8b, #5a6b7a);
+            font-size: 14px;
+            padding: 8px 16px;
+            margin-top: 10px;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important;
+        }
+
+        /* 統計面板樣式 */
+        #stats-panel {
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(139, 69, 19, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        #stats-panel:hover {
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+
+        /* 棋子動畫 */
+        @keyframes stoneDrop {
+            0% { transform: scale(0); opacity: 0; }
+            70% { transform: scale(1.1); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .stone-animation {
+            animation: stoneDrop 0.3s ease-out;
+        }
+
+        /* 響應式設計 */
+        @media (max-width: 650px) {
+            canvas {
+                width: 95vw;
+                height: 95vw;
+                max-width: 500px;
+                max-height: 500px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            #stats-panel {
+                padding: 15px;
+                margin: 15px 10px;
+            }
+            
+            .game-title {
+                font-size: 3.5rem;
+            }
+        }
     </style>
 </head>
 <body>
-    <h1>⚫⚪ 五子棋對戰 AI</h1>
-    <div class="controls">
-        難度：
-        <select id="difficulty">
-            <option value="easy">簡單</option>
-            <option value="medium" selected>中級</option>
-            <option value="hard">困難</option>
-        </select>
-        <button id="restart">🔄 重新開始</button>
-        <button id="undo">↩️ 悔棋（限1次）</button>
+    <!-- 開始畫面 -->
+    <div id="start-screen" class="start-screen">
+        <div class="start-content">
+            <h1 class="game-title">五子棋</h1>
+            <div class="subtitle">⚫⚪ 五子棋對戰 AI</div>
+            <div class="instructions">
+                <p>使用滑鼠點擊棋盤落子</p>
+                <p>目標：在橫、豎或斜線上連成五子</p>
+            </div>
+            <div class="start-prompt">
+                <p>按任意鍵開始遊戲</p>
+                <div class="key-hint">或點擊此處</div>
+            </div>
+        </div>
     </div>
-    <div id="status">輪到你（黑子）</div>
-    <div id="game-container">
-        <canvas id="board" width="600" height="600"></canvas>
+
+    <!-- 遊戲主畫面（初始隱藏） -->
+    <div id="game-main" class="game-main" style="display: none;">
+        <h1>⚫⚪ 五子棋對戰 AI</h1>
+        <div class="controls">
+            難度：
+            <select id="difficulty">
+                <option value="easy">簡單（隨機）</option>
+                <option value="medium" selected>中級（貪心）</option>
+                <option value="hard">困難（Minimax 2層）</option>
+                <option value="expert">專家（Minimax 3層）</option>
+                <option value="impossible">不可能（Minimax 4層）</option>
+            </select>
+            <button id="restart">🔄 重新開始</button>
+            <button id="undo">↩️ 悔棋（限1次）</button>
+            <button id="hint">💡 提示（限3次）</button>
+        </div>
+        <div id="status">輪到你（黑子）</div>
+        <div id="game-container">
+            <canvas id="board" width="600" height="600"></canvas>
+        </div>
+        <div id="stats-panel" style="margin-top: 20px; background: rgba(255,255,255,0.8); padding: 15px; border-radius: 15px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); max-width: 600px; width: 100%;">
+            <h3 style="margin-top: 0; color: #5a3921;">📊 遊戲統計</h3>
+            <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between;">
+                <div>
+                    <div><strong>勝場:</strong> <span id="stat-wins">0</span></div>
+                    <div><strong>敗場:</strong> <span id="stat-losses">0</span></div>
+                    <div><strong>平局:</strong> <span id="stat-draws">0</span></div>
+                    <div><strong>總遊戲:</strong> <span id="stat-total">0</span></div>
+                </div>
+                <div>
+                    <div><strong>當前連勝:</strong> <span id="stat-streak">0</span></div>
+                    <div><strong>最佳連勝:</strong> <span id="stat-best-streak">0</span></div>
+                    <div><strong>勝率:</strong> <span id="stat-win-rate">0%</span></div>
+                </div>
+                <div style="flex: 1; min-width: 200px;">
+                    <div><strong>🎯 成就:</strong></div>
+                    <div id="achievements-list" style="font-size: 14px; margin-top: 5px;">
+                        <!-- 成就將動態顯示 -->
+                    </div>
+                </div>
+            </div>
+            <button id="show-stats" style="margin-top: 10px; padding: 8px 16px; font-size: 14px; background: linear-gradient(to bottom, #6c7b8b, #5a6b7a);">📈 詳細統計</button>
+        </div>
     </div>
 
     <script>
         // ===== 音效生成（無需外部文件）=====
-        function playSound(frequency, duration = 0.2, type = 'sine') {
+        function playSound(frequency, duration = 0.2, type = 'sine', volume = 0.1) {
             try {
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
                 const osc = ctx.createOscillator();
                 const gain = ctx.createGain();
                 osc.type = type;
                 osc.frequency.value = frequency;
-                gain.gain.setValueAtTime(0.1, ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration);
+                gain.gain.setValueAtTime(volume, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
                 osc.connect(gain);
                 gain.connect(ctx.destination);
                 osc.start();
@@ -128,13 +354,40 @@
             }
         }
 
-        // ===== 初始化 =====
+        // 特殊音效
+        function playStoneSound(player) {
+            if (player === 1) {
+                // 黑子音效 - 較低沉
+                playSound(220, 0.15, 'sine', 0.08);
+                playSound(277, 0.1, 'sine', 0.05);
+            } else {
+                // 白子音效 - 較清脆
+                playSound(440, 0.15, 'sine', 0.08);
+                playSound(523, 0.1, 'sine', 0.05);
+            }
+        }
+
+        function playWinSound() {
+            playSound(523, 0.3, 'sine', 0.1);
+            playSound(659, 0.3, 'sine', 0.08);
+            playSound(784, 0.3, 'sine', 0.06);
+        }
+
+        function playAiMoveSound() {
+            playSound(349, 0.2, 'triangle', 0.06);
+            playSound(440, 0.15, 'triangle', 0.04);
+        }
+
+        // ===== 開始畫面控制 =====
+        const startScreen = document.getElementById('start-screen');
+        const gameMain = document.getElementById('game-main');
         const canvas = document.getElementById('board');
         const ctx = canvas.getContext('2d');
         const statusEl = document.getElementById('status');
         const difficultySelect = document.getElementById('difficulty');
         const restartBtn = document.getElementById('restart');
         const undoBtn = document.getElementById('undo');
+        const hintBtn = document.getElementById('hint');
 
         const BOARD_SIZE = 15;
         const CELL_SIZE = 40;
@@ -146,8 +399,211 @@
         let gameActive = true;
         let difficulty = 'medium';
         let undoUsed = false;
+        let hintUsed = 0;
+        const MAX_HINTS = 3;
         let moveHistory = []; // 用於悔棋
         let hoverPos = null;
+        let hintPos = null;
+        
+        // 遊戲統計
+        let gameStats = {
+            wins: 0,
+            losses: 0,
+            draws: 0,
+            totalGames: 0,
+            currentStreak: 0,
+            bestStreak: 0,
+            achievements: {
+                firstWin: false,
+                fiveWins: false,
+                beatHardAI: false,
+                perfectGame: false,
+                hintMaster: false
+            }
+        };
+        
+        // 從本地存儲加載統計數據
+        function loadStats() {
+            const saved = localStorage.getItem('gomokuStats');
+            if (saved) {
+                try {
+                    gameStats = JSON.parse(saved);
+                } catch (e) {
+                    // 如果解析失敗，使用默認值
+                }
+            }
+        }
+        
+        // 保存統計數據到本地存儲
+        function saveStats() {
+            localStorage.setItem('gomokuStats', JSON.stringify(gameStats));
+        }
+        
+        // 初始化時加載統計數據
+        loadStats();
+        
+        // 更新統計顯示
+        function updateStatsDisplay() {
+            document.getElementById('stat-wins').textContent = gameStats.wins;
+            document.getElementById('stat-losses').textContent = gameStats.losses;
+            document.getElementById('stat-draws').textContent = gameStats.draws;
+            document.getElementById('stat-total').textContent = gameStats.totalGames;
+            document.getElementById('stat-streak').textContent = gameStats.currentStreak;
+            document.getElementById('stat-best-streak').textContent = gameStats.bestStreak;
+            
+            const winRate = gameStats.totalGames > 0 ?
+                Math.round((gameStats.wins / gameStats.totalGames) * 100) : 0;
+            document.getElementById('stat-win-rate').textContent = `${winRate}%`;
+            
+            // 更新成就顯示
+            const achievementsList = document.getElementById('achievements-list');
+            const achievements = [];
+            if (gameStats.achievements.firstWin) achievements.push('✅ 首次勝利');
+            else achievements.push('⚪ 首次勝利');
+            
+            if (gameStats.achievements.fiveWins) achievements.push('✅ 五場勝利');
+            else achievements.push('⚪ 五場勝利');
+            
+            if (gameStats.achievements.beatHardAI) achievements.push('✅ 擊敗困難AI');
+            else achievements.push('⚪ 擊敗困難AI');
+            
+            if (gameStats.achievements.perfectGame) achievements.push('✅ 完美遊戲（無悔棋）');
+            else achievements.push('⚪ 完美遊戲');
+            
+            if (gameStats.achievements.hintMaster) achievements.push('✅ 提示大師（不用提示）');
+            else achievements.push('⚪ 提示大師');
+            
+            achievementsList.innerHTML = achievements.join('<br>');
+        }
+        
+        // 更新遊戲結果統計
+        function updateGameResult(result) {
+            gameStats.totalGames++;
+            
+            if (result === 'win') {
+                gameStats.wins++;
+                gameStats.currentStreak++;
+                if (gameStats.currentStreak > gameStats.bestStreak) {
+                    gameStats.bestStreak = gameStats.currentStreak;
+                }
+                
+                // 成就檢查
+                if (!gameStats.achievements.firstWin) {
+                    gameStats.achievements.firstWin = true;
+                    showAchievementNotification('首次勝利！', '🎉');
+                }
+                
+                if (gameStats.wins >= 5 && !gameStats.achievements.fiveWins) {
+                    gameStats.achievements.fiveWins = true;
+                    showAchievementNotification('達成五場勝利！', '🏆');
+                }
+                
+                if (difficulty === 'hard' && !gameStats.achievements.beatHardAI) {
+                    gameStats.achievements.beatHardAI = true;
+                    showAchievementNotification('擊敗困難AI！', '🤖');
+                }
+                
+            } else if (result === 'loss') {
+                gameStats.losses++;
+                gameStats.currentStreak = 0;
+            } else if (result === 'draw') {
+                gameStats.draws++;
+                gameStats.currentStreak = 0;
+            }
+            
+            // 檢查完美遊戲成就（沒有使用悔棋）
+            if (!undoUsed && result === 'win' && !gameStats.achievements.perfectGame) {
+                gameStats.achievements.perfectGame = true;
+                showAchievementNotification('完美遊戲！沒有使用悔棋', '✨');
+            }
+            
+            // 檢查提示大師成就（沒有使用提示）
+            if (hintUsed === 0 && result === 'win' && !gameStats.achievements.hintMaster) {
+                gameStats.achievements.hintMaster = true;
+                showAchievementNotification('提示大師！沒有使用提示', '💡');
+            }
+            
+            saveStats();
+            updateStatsDisplay();
+        }
+        
+        // 顯示成就通知
+        function showAchievementNotification(title, icon) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #ffd166, #ffb347);
+                color: #5a3921;
+                padding: 15px 20px;
+                border-radius: 10px;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+                z-index: 1001;
+                animation: slideIn 0.5s ease, fadeOut 0.5s ease 2.5s forwards;
+                border-left: 5px solid #d35400;
+                font-weight: bold;
+                max-width: 300px;
+            `;
+            notification.innerHTML = `<div style="font-size: 18px;">${icon} ${title}</div>
+                                     <div style="font-size: 14px; opacity: 0.8;">成就已解鎖！</div>`;
+            document.body.appendChild(notification);
+            
+            // 添加CSS動畫
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                @keyframes fadeOut {
+                    from { opacity: 1; }
+                    to { opacity: 0; transform: translateX(100%); }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // 3秒後移除通知
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+                if (style.parentNode) {
+                    style.parentNode.removeChild(style);
+                }
+            }, 3000);
+        }
+        
+        // 初始化時更新顯示
+        setTimeout(updateStatsDisplay, 100);
+
+        // 開始遊戲函數
+        function startGame() {
+            // 播放開始音效
+            playSound(523, 0.3, 'sine');
+            playSound(659, 0.3, 'sine');
+            
+            // 淡出開始畫面
+            startScreen.style.opacity = '0';
+            startScreen.style.transition = 'opacity 0.5s ease';
+            
+            setTimeout(() => {
+                startScreen.style.display = 'none';
+                gameMain.style.display = 'flex';
+                // 初始化棋盤
+                initBoard();
+            }, 500);
+        }
+
+        // 點擊開始畫面開始遊戲
+        startScreen.addEventListener('click', startGame);
+        
+        // 按任意鍵開始遊戲
+        document.addEventListener('keydown', (e) => {
+            if (startScreen.style.display !== 'none') {
+                startGame();
+            }
+        });
 
         // 初始化棋盤
         function initBoard() {
@@ -155,12 +611,16 @@
             currentPlayer = 1;
             gameActive = true;
             undoUsed = false;
+            hintUsed = 0;
             moveHistory = [];
             statusEl.textContent = '輪到你（黑子）';
             statusEl.className = '';
             hoverPos = null;
+            hintPos = null;
             drawBoard();
             undoBtn.disabled = false;
+            hintBtn.disabled = false;
+            hintBtn.textContent = `💡 提示（剩餘 ${MAX_HINTS - hintUsed} 次）`;
         }
 
         // 畫棋盤
@@ -198,6 +658,21 @@
                     else if (board[row][col] === -1) drawStone(col, row, 'white');
                 }
             }
+            
+            // 高亮最後一步
+            if (moveHistory.length > 0) {
+                const lastMove = moveHistory[moveHistory.length - 1];
+                const {row, col} = lastMove;
+                const x = OFFSET + col * CELL_SIZE;
+                const y = OFFSET + row * CELL_SIZE;
+                
+                ctx.strokeStyle = lastMove.player === 1 ? '#ff9900' : '#0099ff';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(x, y, RADIUS + 2, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.lineWidth = 1.5;
+            }
 
             // 懸停預覽
             if (hoverPos && currentPlayer === 1 && gameActive) {
@@ -208,11 +683,50 @@
                     ctx.globalAlpha = 1.0;
                 }
             }
+
+            // 提示顯示
+            if (hintPos && currentPlayer === 1 && gameActive) {
+                const [col, row] = hintPos;
+                if (board[row][col] === 0) {
+                    ctx.globalAlpha = 0.7;
+                    ctx.fillStyle = '#ff9900';
+                    ctx.beginPath();
+                    const x = OFFSET + col * CELL_SIZE;
+                    const y = OFFSET + row * CELL_SIZE;
+                    ctx.arc(x, y, RADIUS + 2, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.globalAlpha = 1.0;
+                    
+                    // 閃爍效果
+                    const time = Date.now() / 200;
+                    ctx.globalAlpha = 0.3 + 0.2 * Math.sin(time);
+                    ctx.fillStyle = '#ffff00';
+                    ctx.beginPath();
+                    ctx.arc(x, y, RADIUS - 4, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.globalAlpha = 1.0;
+                }
+            }
         }
 
-        function drawStone(col, row, color) {
+        function drawStone(col, row, color, animate = false) {
             const x = OFFSET + col * CELL_SIZE;
             const y = OFFSET + row * CELL_SIZE;
+            
+            // 如果需要動畫，先保存上下文狀態
+            if (animate) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(x, y, RADIUS, 0, Math.PI * 2);
+                ctx.clip();
+                
+                // 動畫效果：從小到大
+                const scale = 1; // 可以根據需要調整動畫
+                ctx.translate(x, y);
+                ctx.scale(scale, scale);
+                ctx.translate(-x, -y);
+            }
+            
             ctx.beginPath();
             ctx.arc(x, y, RADIUS, 0, Math.PI * 2);
             ctx.shadowColor = 'rgba(0,0,0,0.3)';
@@ -236,6 +750,79 @@
                 ctx.arc(x - 4, y - 4, RADIUS / 4, 0, Math.PI * 2);
                 ctx.fill();
             }
+            
+            if (animate) {
+                ctx.restore();
+            }
+        }
+        
+        // 繪製帶有動畫的棋子
+        function drawStoneWithAnimation(col, row, color) {
+            const x = OFFSET + col * CELL_SIZE;
+            const y = OFFSET + row * CELL_SIZE;
+            
+            // 簡單的縮放動畫
+            let scale = 0;
+            const animate = () => {
+                ctx.clearRect(x - RADIUS - 2, y - RADIUS - 2, RADIUS * 2 + 4, RADIUS * 2 + 4);
+                
+                // 重繪背景
+                ctx.fillStyle = '#f0e0c0';
+                ctx.fillRect(x - RADIUS - 2, y - RADIUS - 2, RADIUS * 2 + 4, RADIUS * 2 + 4);
+                
+                // 繪製格線（局部）
+                ctx.strokeStyle = '#8B4513';
+                ctx.lineWidth = 1.2;
+                ctx.beginPath();
+                ctx.moveTo(OFFSET, y);
+                ctx.lineTo(OFFSET + (BOARD_SIZE - 1) * CELL_SIZE, y);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(x, OFFSET);
+                ctx.lineTo(x, OFFSET + (BOARD_SIZE - 1) * CELL_SIZE);
+                ctx.stroke();
+                
+                // 繪製縮放中的棋子
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.scale(scale, scale);
+                ctx.translate(-x, -y);
+                
+                ctx.beginPath();
+                ctx.arc(x, y, RADIUS, 0, Math.PI * 2);
+                ctx.shadowColor = 'rgba(0,0,0,0.3)';
+                ctx.shadowBlur = 5;
+                ctx.fillStyle = color;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+                
+                // 光澤
+                if (color === 'white') {
+                    ctx.fillStyle = '#fff';
+                    ctx.beginPath();
+                    ctx.arc(x - 5, y - 5, RADIUS / 3, 0, Math.PI * 2);
+                    ctx.fill();
+                } else {
+                    ctx.fillStyle = '#333';
+                    ctx.beginPath();
+                    ctx.arc(x - 4, y - 4, RADIUS / 4, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                
+                ctx.restore();
+                
+                scale += 0.1;
+                if (scale < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    // 動畫完成，重繪完整棋盤
+                    drawBoard();
+                }
+            };
+            animate();
         }
 
         // 勝利檢查
@@ -262,12 +849,48 @@
             return board.every(row => row.every(cell => cell !== 0));
         }
 
+        // 提示功能
+        function showHint() {
+            if (!gameActive || currentPlayer !== 1 || hintUsed >= MAX_HINTS) return;
+            
+            // 使用貪心算法找到最佳位置
+            const bestMove = aiGreedy();
+            if (!bestMove) return;
+            
+            const [row, col] = bestMove;
+            hintPos = [col, row];
+            hintUsed++;
+            hintBtn.textContent = `💡 提示（剩餘 ${MAX_HINTS - hintUsed} 次）`;
+            
+            if (hintUsed >= MAX_HINTS) {
+                hintBtn.disabled = true;
+            }
+            
+            // 播放提示音效
+            playSound(784, 0.3, 'sine', 0.08);
+            playSound(659, 0.2, 'sine', 0.05);
+            
+            drawBoard();
+            
+            // 5秒後清除提示
+            setTimeout(() => {
+                hintPos = null;
+                drawBoard();
+            }, 5000);
+        }
+
         // 落子
         function makeMove(col, row) {
             if (!gameActive || board[row][col] !== 0) return false;
 
+            // 清除提示
+            hintPos = null;
+
             // 記錄歷史（用於悔棋）
             moveHistory.push({row, col, player: currentPlayer});
+
+            // 播放落子音效
+            playStoneSound(currentPlayer);
 
             board[row][col] = currentPlayer;
             drawBoard();
@@ -277,8 +900,16 @@
                 statusEl.textContent = `🎉 ${winner} 勝利！`;
                 statusEl.style.color = '#d35400';
                 gameActive = false;
-                playSound(currentPlayer === 1 ? 523 : 349, 0.4); // C5 / F4
-                if (currentPlayer === 1) celebrateWin();
+                playWinSound();
+                
+                // 更新統計
+                if (currentPlayer === 1) {
+                    updateGameResult('win');
+                    celebrateWin();
+                } else {
+                    updateGameResult('loss');
+                }
+                
                 return true;
             }
 
@@ -287,6 +918,10 @@
                 statusEl.style.color = '#7f8c8d';
                 gameActive = false;
                 playSound(440, 0.3);
+                
+                // 更新統計
+                updateGameResult('draw');
+                
                 return true;
             }
 
@@ -294,7 +929,16 @@
             if (currentPlayer === -1 && gameActive) {
                 statusEl.textContent = 'AI 思考中... 🤔';
                 statusEl.className = 'thinking';
-                setTimeout(aiMove, difficulty === 'easy' ? 800 : difficulty === 'medium' ? 400 : 200);
+                let delay;
+                switch (difficulty) {
+                    case 'easy': delay = 800; break;
+                    case 'medium': delay = 400; break;
+                    case 'hard': delay = 600; break;
+                    case 'expert': delay = 800; break;
+                    case 'impossible': delay = 1200; break;
+                    default: delay = 400;
+                }
+                setTimeout(aiMove, delay);
             } else {
                 statusEl.textContent = '輪到你（黑子）';
                 statusEl.className = '';
@@ -518,10 +1162,14 @@
                 case 'easy': move = aiRandom(); break;
                 case 'medium': move = aiGreedy(); break;
                 case 'hard': move = aiMinimax(2); break;
+                case 'expert': move = aiMinimax(3); break;
+                case 'impossible': move = aiMinimax(4); break;
             }
             if (!move) move = aiRandom();
             if (move) {
                 const [row, col] = move;
+                // 播放AI移動音效
+                playAiMoveSound();
                 makeMove(col, row);
             }
         }
@@ -577,7 +1225,30 @@
             }
         });
 
-        initBoard();
+        hintBtn.addEventListener('click', showHint);
+        
+        // 詳細統計按鈕
+        document.getElementById('show-stats').addEventListener('click', () => {
+            alert(`詳細統計：
+勝場: ${gameStats.wins}
+敗場: ${gameStats.losses}
+平局: ${gameStats.draws}
+總遊戲數: ${gameStats.totalGames}
+當前連勝: ${gameStats.currentStreak}
+最佳連勝: ${gameStats.bestStreak}
+勝率: ${gameStats.totalGames > 0 ? Math.round((gameStats.wins / gameStats.totalGames) * 100) : 0}%
+
+成就:
+${gameStats.achievements.firstWin ? '✅' : '⚪'} 首次勝利
+${gameStats.achievements.fiveWins ? '✅' : '⚪'} 五場勝利
+${gameStats.achievements.beatHardAI ? '✅' : '⚪'} 擊敗困難AI
+${gameStats.achievements.perfectGame ? '✅' : '⚪'} 完美遊戲（無悔棋）
+${gameStats.achievements.hintMaster ? '✅' : '⚪'} 提示大師（不用提示）
+            `);
+        });
+
+        // 遊戲從開始畫面開始，不自動初始化棋盤
+        // initBoard(); // 已移除，等待玩家開始遊戲
     </script>
 </body>
 </html>
