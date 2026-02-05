@@ -1,83 +1,46 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-HK">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>遊戲走廊 - 純前端小遊戲庫</title>
-  <style>
-    :root { --bg: #101018; --card: #1a1a2e; --fg: #eaeaf0; --muted: #a3a3b8; --accent: #4CAF50; }
-    * { box-sizing: border-box; }
-    html, body { height: 100%; margin: 0; background: var(--bg); color: var(--fg); font-family: system-ui, -apple-system, Arial; }
-    header { padding: 16px 20px; border-bottom: 1px solid #333; position: sticky; top: 0; background: #0f0f14; z-index: 5; }
-    header h1 { margin: 0; font-size: 1.25rem; }
-    header p { margin: 4px 0 0; color: var(--muted); font-size: 0.9rem; }
-    main { padding: 16px 20px; }
-    #gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
-    .game-card { background: var(--card); border: 1px solid #333; border-radius: 8px; padding: 14px; cursor: pointer; transition: transform .2s, box-shadow .2s; }
-    .game-card:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,.25); }
-    .game-title { font-weight: 600; margin-bottom: 6px; }
-    .game-desc { font-size: 13px; color: #ddd; margin-bottom: 6px; }
-    .game-difficulty { font-size: 12px; padding: 2px 6px; border-radius: 4px; background: #333; }
-    #frameArea { display: none; padding: 0 20px 20px; }
-    #gameFrame { width: 100%; height: 60vh; border: 1px solid #333; background: #000; }
-    #frameControls { margin-top: 8px; }
-    #backBtn { padding: 6px 12px; border: 1px solid #333; background: #222; color: #fff; border-radius: 6px; cursor: pointer; }
-    @media (max-width: 700px) {
-      #gallery { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
-      #gameFrame { height: 50vh; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的遊戲館</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a2e;
+            color: white;
+            text-align: center;
+            padding: 40px;
+        }
+        h1 { margin-bottom: 30px; }
+        .games { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; }
+        .game-card {
+            background: #2d2d44;
+            padding: 25px 35px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: white;
+            transition: 0.3s;
+        }
+        .game-card:hover { background: #3d3d5c; transform: scale(1.05); }
+        .icon { font-size: 2em; }
+    </style>
 </head>
 <body>
-  <header>
-    <h1>遊戲走廊</h1>
-    <p>純前端 HTML 小遊戲庫，點擊卡片在下方載入。無框架、可擴充。</p>
-  </header>
-  <main>
-    <section id="gallery" aria-label="遊戲走廊清單"></section>
-    <section id="frameArea" aria-label="載入中的遊戲">
-      <transition>請稍待，正在載入遊戲…</transition>
-      <iframe id="gameFrame" title="載入中的遊戲視窗" sandbox="allow-scripts allow-same-origin"></iframe>
-      <div id="frameControls">
-        <button id="backBtn">回到走廊</button>
-      </div>
-    </section>
-  </main>
-  <script>
-    (function(){
-      const gallery = document.getElementById('gallery');
-      const frameArea = document.getElementById('frameArea');
-      const frame = document.getElementById('gameFrame');
-      const backBtn = document.getElementById('backBtn');
-      // Load metadata and render cards
-      fetch('/games/metadata.json').then(r => r.json()).then(data => {
-        const games = data.games || [];
-        games.forEach(g => {
-          const card = document.createElement('div');
-          card.className = 'game-card';
-          card.innerHTML = `
-            <div class="game-title">${g.title}</div>
-            <div class="game-desc">${g.description || ''}</div>
-            <div class="game-difficulty">${g.difficulty || 'Easy'}</div>
-          `;
-          card.addEventListener('click', () => {
-            frame.src = '/' + (g.path || '');
-            frameArea.style.display = 'block';
-            gallery.style.display = 'none';
-          	backBtn.style.display = 'inline-block';
-          });
-          gallery.appendChild(card);
-        });
-      }).catch(() => {
-        gallery.innerHTML = '<div style="padding:16px; color:#ddd">找不到遊戲清單 (metadata.json)</div>';
-      });
-      backBtn.addEventListener('click', () => {
-        frame.src = '';
-        frameArea.style.display = 'none';
-        gallery.style.display = 'grid';
-        backBtn.style.display = 'none';
-      });
-    })();
-  </script>
+    <h1>🎮 我的遊戲館</h1>
+    <div class="games">
+        <a href="game1.html" class="game-card">
+            <div class="icon">🎯</div>
+            <div>貪食蛇遊戲</div>
+        </a>
+        <a href="game2.html" class="game-card">
+            <div class="icon">✊</div>
+            <div>五子棋遊戲</div>
+        </a>
+        <a href="game2.html" class="game-card">
+            <div class="icon">✊</div>
+            <div>跳跳鳥</div>
+        <!-- 加更多遊戲 -->
+    </div>
 </body>
 </html>

@@ -38,19 +38,20 @@
             to { box-shadow: 0 0 35px rgba(0, 255, 0, 0.6); }
         }
 
+        /* 计分面板：移到外部 */
         #score-info {
-            position: absolute;
-            top: 10px;
-            left: 10px;
+            margin: 10px 0;
             font-size: 20px;
             display: flex;
-            flex-direction: column;
-            gap: 5px;
-            z-index: 5;
+            justify-content: space-between;
+            gap: 15px;
             background-color: rgba(0, 0, 0, 0.7);
-            padding: 10px 15px;
+            padding: 10px 20px;
             border-radius: 8px;
             border: 1px solid rgba(76, 175, 80, 0.5);
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
         }
         #score, #high-score {
             color: #4CAF50;
@@ -196,13 +197,14 @@
 </head>
 <body>
     <div id="game-container">
-        <canvas id="game-board" width="400" height="400"></canvas>
-        <div id="pause-overlay">暫停中...<br>按空格繼續</div>
-        
+        <!-- 计分面板移到 canvas 外部上方 -->
         <div id="score-info">
             <div id="score">分數: 0</div>
             <div id="high-score">最高分: 0</div>
         </div>
+
+        <canvas id="game-board" width="400" height="400"></canvas>
+        <div id="pause-overlay">暫停中...<br>按空格繼續</div>
 
         <div id="difficulty-selector">
             <label for="difficulty">難度:</label>
@@ -470,9 +472,9 @@
                 snake.pop();
             }
             
-            // 特殊食物計時（每 50 分出現）
+            // 特殊食物計時（每累積一定步數出現）
             specialFoodTimer++;
-            if (score >= 50 && specialFoodTimer % (300) === 0 && !specialFood) {
+            if (score >= 50 && specialFoodTimer % 300 === 0 && !specialFood) {
                 generateSpecialFood();
             }
             
@@ -674,7 +676,6 @@
         // 按任意鍵開始遊戲
         document.addEventListener('keydown', (e) => {
             if (!gameRunning && startScreen.style.display !== 'none') {
-                // 防止空格鍵觸發暫停功能
                 if (e.key === ' ') {
                     e.preventDefault();
                 }
