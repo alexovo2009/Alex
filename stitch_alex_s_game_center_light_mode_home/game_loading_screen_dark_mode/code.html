@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html class="dark" lang="zh-Hant"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Alex's Game Center - Loading</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Noto+Sans+TC:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ffd700",
+                        "background-light": "#f8f8f5",
+                        "background-dark": "#0d1b2a", 
+                        "game-blue-dark": "#0d1b2a",
+                        "game-blue-light": "#1e3a5f",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "Noto Sans TC", "sans-serif"],
+                        "body": ["Noto Sans TC", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        @keyframes spin-slow {
+            to { transform: rotate(360deg); }
+        }
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.6; box-shadow: 0 0 10px rgba(255, 215, 0, 0.3); }
+            50% { opacity: 1; box-shadow: 0 0 25px rgba(255, 215, 0, 0.6); }
+        }
+        .spinner-ring {
+            animation: spin-slow 8s linear infinite;
+        }
+        .pulse-effect {
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+        body {
+            font-family: 'Space Grotesk', 'Noto Sans TC', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-[#0d1b2a] min-h-screen flex flex-col font-display text-slate-100 overflow-hidden relative">
+<div class="absolute inset-0 z-0 bg-gradient-to-br from-[#1e3a5f] to-[#0d1b2a]">
+<div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/hexellence.png')] mix-blend-overlay"></div>
+</div>
+<header class="flex items-center justify-between whitespace-nowrap border-b border-white/10 px-6 py-4 bg-[#0d1b2a]/80 backdrop-blur-sm z-20 relative">
+<div class="flex items-center gap-4">
+<div class="text-primary size-8 flex items-center justify-center">
+<span class="material-symbols-outlined text-4xl">sports_esports</span>
+</div>
+<h2 class="text-white text-xl font-bold leading-tight tracking-[-0.015em]">Alex's Game Center</h2>
+</div>
+<div class="flex flex-1 justify-end gap-8 items-center">
+<div class="hidden md:flex items-center gap-9">
+<a class="text-slate-300 hover:text-primary text-sm font-medium leading-normal transition-colors" href="#">首頁</a>
+<a class="text-slate-300 hover:text-primary text-sm font-medium leading-normal transition-colors" href="#">遊戲庫</a>
+<a class="text-slate-300 hover:text-primary text-sm font-medium leading-normal transition-colors" href="#">排行榜</a>
+<a class="text-slate-300 hover:text-primary text-sm font-medium leading-normal transition-colors" href="#">社群</a>
+</div>
+<div class="flex gap-3">
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-[#0d1b2a] hover:bg-yellow-400 text-sm font-bold leading-normal tracking-[0.015em] transition-colors shadow-[0_0_10px_rgba(255,215,0,0.3)]">
+<span class="truncate">登入</span>
+</button>
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-white/10 text-white hover:bg-white/20 text-sm font-bold leading-normal tracking-[0.015em] transition-colors backdrop-blur-sm border border-white/5">
+<span class="truncate">註冊</span>
+</button>
+</div>
+</div>
+</header>
+<main class="relative z-10 flex flex-col items-center justify-center flex-grow p-6 w-full h-full min-h-[600px]">
+<div class="relative flex flex-col items-center justify-center gap-10 max-w-2xl w-full">
+<div class="relative size-64 flex items-center justify-center">
+<div class="absolute inset-0 rounded-full border-2 border-primary/20 spinner-ring border-dashed"></div>
+<div class="absolute inset-4 rounded-full border-[3px] border-transparent border-t-primary border-r-primary spinner-ring shadow-[0_0_20px_rgba(255,215,0,0.4)]" style="animation-duration: 3s; animation-direction: reverse;"></div>
+<div class="absolute inset-12 rounded-full border border-primary/10 flex items-center justify-center bg-[#0d1b2a]/50 backdrop-blur-sm pulse-effect shadow-[0_0_15px_rgba(255,215,0,0.2)]">
+<span class="material-symbols-outlined text-6xl text-primary drop-shadow-[0_0_10px_rgba(255,215,0,0.8)]">sports_esports</span>
+</div>
+<div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 size-2 bg-primary rounded-full shadow-[0_0_10px_#ffd700] animate-bounce"></div>
+<div class="absolute bottom-10 right-0 size-1.5 bg-white/60 rounded-full animate-pulse"></div>
+<div class="absolute top-10 left-4 size-1 bg-white/40 rounded-full animate-ping"></div>
+</div>
+<div class="flex flex-col items-center gap-6 w-full max-w-md text-center">
+<div class="space-y-2">
+<h1 class="text-3xl md:text-4xl font-bold text-white tracking-wide drop-shadow-lg">
+                        遊戲載入中...
+                    </h1>
+<p class="text-primary/90 text-sm md:text-base font-medium tracking-widest uppercase">
+                        探索精彩遊戲世界
+                    </p>
+</div>
+<div class="w-full flex flex-col gap-2">
+<div class="flex justify-between items-end px-1">
+<span class="text-xs text-blue-200 font-mono tracking-wider">LOADING RESOURCES</span>
+<span class="text-2xl font-bold text-primary font-mono leading-none">75%</span>
+</div>
+<div class="h-2 w-full bg-[#0d1b2a] rounded-full overflow-hidden border border-white/10 relative shadow-inner">
+<div class="h-full bg-gradient-to-r from-yellow-600 via-primary to-yellow-200 w-3/4 rounded-full shadow-[0_0_15px_rgba(255,215,0,0.5)] relative">
+<div class="absolute inset-0 bg-white/20 animate-pulse"></div>
+</div>
+</div>
+<div class="flex justify-between text-[10px] text-blue-300/60 font-mono mt-1">
+<span>SERVER: ASIA-HK-01</span>
+<span>EST: 5s</span>
+</div>
+</div>
+<div class="mt-8 p-4 bg-[#1e3a5f]/40 border border-primary/20 rounded-xl backdrop-blur-md w-full max-w-sm shadow-lg">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary text-xl mt-0.5">lightbulb</span>
+<div class="text-left">
+<h4 class="text-white text-sm font-bold mb-1">小提示</h4>
+<p class="text-slate-300 text-xs leading-relaxed">
+                                在多人對戰模式中，與隊友保持溝通是獲勝的關鍵。按下 <kbd class="px-1 py-0.5 bg-white/10 rounded text-primary font-mono text-[10px] border border-white/10">T</kbd> 鍵可以開啟語音聊天。
+                            </p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<div class="absolute bottom-6 left-6 text-white/20 text-xs font-mono z-10 pointer-events-none">
+        v2.4.0-build.892
+    </div>
+
+</body></html>

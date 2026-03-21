@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Alex's Game Center - Loading</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Noto+Sans+TC:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1e3a5f",
+                        "primary-light": "#2c5282",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#14181e",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "Noto Sans TC", "sans-serif"],
+                        "sans": ["Noto Sans TC", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        @keyframes spinner-spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.1; }
+            100% { transform: scale(0.8); opacity: 0.5; }
+        }
+        @keyframes shimmer {
+            100% { transform: translateX(100%); }
+        }
+    </style>
+</head>
+<body class="bg-background-light font-display antialiased text-slate-900 min-h-screen flex flex-col">
+<header class="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-slate-200 transition-colors duration-300">
+<div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex h-16 items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-white shadow-md shadow-primary/20">
+<span class="material-symbols-outlined text-xl">stadia_controller</span>
+</div>
+<h2 class="text-lg font-bold tracking-tight text-slate-900">Alex's Game Center</h2>
+</div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-sm font-medium text-slate-600 hover:text-primary transition-colors" href="#">首頁</a>
+<a class="text-sm font-bold text-primary" href="#">遊戲庫</a>
+<a class="text-sm font-medium text-slate-600 hover:text-primary transition-colors" href="#">排行榜</a>
+<a class="text-sm font-medium text-slate-600 hover:text-primary transition-colors" href="#">關於我們</a>
+</nav>
+<div class="flex items-center gap-3">
+<button class="hidden sm:flex items-center justify-center h-9 px-4 rounded-lg bg-white border border-slate-200 text-slate-700 text-sm font-bold hover:bg-slate-50 transition-colors shadow-sm">
+<span>註冊</span>
+</button>
+<button class="flex items-center justify-center h-9 px-4 rounded-lg bg-primary text-white text-sm font-bold hover:bg-primary-light transition-colors shadow-md shadow-primary/20">
+<span>登入</span>
+</button>
+</div>
+</div>
+</div>
+</header>
+<main class="flex-grow flex flex-col items-center justify-center relative w-full overflow-hidden bg-gradient-to-br from-[#f5f7fa] to-[#e4e8f0]">
+<div class="absolute inset-0 overflow-hidden pointer-events-none">
+<div class="absolute top-[10%] right-[15%] w-[500px] h-[500px] rounded-full bg-blue-200/20 blur-[100px]"></div>
+<div class="absolute bottom-[10%] left-[10%] w-[400px] h-[400px] rounded-full bg-indigo-200/20 blur-[80px]"></div>
+</div>
+<div class="relative z-10 w-full max-w-md px-6 flex flex-col items-center">
+<div class="relative mb-12 flex items-center justify-center">
+<div class="absolute inset-0 rounded-full bg-primary/5 animate-[pulse-ring_2s_infinite]"></div>
+<svg class="w-28 h-28 text-primary animate-[spinner-spin_3s_linear_infinite]" fill="none" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+<circle class="opacity-10" cx="50" cy="50" r="42" stroke="currentColor" stroke-width="6"></circle>
+<circle class="origin-center" cx="50" cy="50" r="42" stroke="currentColor" stroke-dasharray="260" stroke-dashoffset="80" stroke-linecap="round" stroke-width="6" style="filter: drop-shadow(0 0 8px rgba(30, 58, 95, 0.2));">
+</circle>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-4xl">gamepad</span>
+</div>
+</div>
+<div class="text-center space-y-3 mb-10">
+<h1 class="text-3xl font-bold text-slate-900 tracking-tight">遊戲載入中...</h1>
+<p class="text-slate-500 font-medium text-base">探索精彩遊戲世界</p>
+</div>
+<div class="w-full bg-white/70 backdrop-blur-md rounded-2xl p-6 border border-white shadow-lg shadow-slate-200/50">
+<div class="flex justify-between items-end mb-3">
+<div class="flex flex-col gap-1">
+<span class="text-xs font-bold tracking-widest text-slate-400 uppercase">Status</span>
+<div class="flex items-center gap-2">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+</span>
+<span class="text-sm font-bold text-primary uppercase tracking-wide">LOADING RESOURCES</span>
+</div>
+</div>
+<span class="text-3xl font-bold text-slate-800 tabular-nums">75<span class="text-lg align-top ml-0.5 text-slate-400">%</span></span>
+</div>
+<div class="h-2.5 w-full bg-slate-200 rounded-full overflow-hidden relative shadow-inner">
+<div class="h-full bg-gradient-to-r from-primary to-blue-500 rounded-full relative overflow-hidden w-[75%] shadow-[0_0_10px_rgba(30,58,95,0.3)]">
+<div class="absolute top-0 left-0 bottom-0 right-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full animate-[shimmer_1.5s_infinite]"></div>
+</div>
+</div>
+<div class="mt-4 flex justify-between text-xs text-slate-500 font-medium tracking-wide">
+<span>256 MB / 340 MB</span>
+<span>預計剩餘 12 秒</span>
+</div>
+</div>
+<div class="mt-8 flex items-start gap-4 p-4 bg-white/60 border border-slate-200/60 rounded-xl backdrop-blur-sm max-w-sm">
+<div class="flex-shrink-0 p-2 bg-primary/10 rounded-full text-primary">
+<span class="material-symbols-outlined text-lg leading-none">lightbulb</span>
+</div>
+<div>
+<h4 class="text-xs font-bold text-slate-900 mb-1 uppercase tracking-wider">小提示</h4>
+<p class="text-xs text-slate-600 leading-relaxed">完成每日任務可獲得額外獎勵點數，解鎖更多角色造型！</p>
+</div>
+</div>
+</div>
+</main>
+
+</body></html>

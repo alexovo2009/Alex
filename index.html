@@ -1,46 +1,504 @@
 <!DOCTYPE html>
-<html lang="zh-HK">
+<html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的遊戲館</title>
+    <meta name="description" content="Alex's Game Center - 精選經典遊戲，包括貪食蛇、五子棋對戰 AI、跳跳鳥 Pro 等精彩遊戲">
+    <meta name="keywords" content="遊戲中心,貪食蛇,五子棋,跳跳鳥,經典遊戲,HTML5遊戲">
+    <meta name="author" content="Alex's Game Center">
+    <title>Alex's Game Center - 遊戲中心</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎮</text></svg>">
+    <meta property="og:title" content="Alex's Game Center - 遊戲中心">
+    <meta property="og:description" content="探索精彩遊戲世界！精選經典遊戲，讓您享受無限樂趣">
+    <meta property="og:type" content="website">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1e3a5f",
+                        "primary-light": "#2c5282",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#14181e",
+                        "accent-green": "#10b981",
+                        "accent-blue": "#3b82f6",
+                        "accent-purple": "#8b5cf6",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "Noto Sans TC", "sans-serif"],
+                        "sans": ["Noto Sans TC", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "full": "9999px"
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
+                        'shimmer': 'shimmer 2s infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        },
+                        'pulse-glow': {
+                            '0%, 100%': { opacity: '1', boxShadow: '0 0 20px rgba(30, 58, 95, 0.3)' },
+                            '50%': { opacity: '0.8', boxShadow: '0 0 30px rgba(30, 58, 95, 0.5)' },
+                        },
+                        shimmer: {
+                            '100%': { transform: 'translateX(100%)' },
+                        },
+                    }
+                },
+            },
+        }
+    </script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #1a1a2e;
-            color: white;
-            text-align: center;
-            padding: 40px;
-        }
-        h1 { margin-bottom: 30px; }
-        .games { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; }
         .game-card {
-            background: #2d2d44;
-            padding: 25px 35px;
-            border-radius: 10px;
-            text-decoration: none;
-            color: white;
-            transition: 0.3s;
+            transition: all 0.3s ease;
         }
-        .game-card:hover { background: #3d3d5c; transform: scale(1.05); }
-        .icon { font-size: 2em; }
+        .game-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+        }
+        .hero-gradient {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 50%, #3b82f6 100%);
+        }
+        
+        /* Loading animation */
+        #loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+        
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loaded #loading {
+            opacity: 0;
+            visibility: hidden;
+        }
     </style>
 </head>
-<body>
-    <h1>🎮 我的遊戲館</h1>
-    <div class="games">
-        <a href="game1.html" class="game-card">
-            <div class="icon">🎯</div>
-            <div>貪食蛇遊戲</div>
-        </a>
-        <a href="game2.html" class="game-card">
-            <div class="icon">✊</div>
-            <div>五子棋遊戲</div>
-        </a>
-        <a href="game2.html" class="game-card">
-            <div class="icon">✊</div>
-            <div>跳跳鳥</div>
-        <!-- 加更多遊戲 -->
+<body class="bg-background-light font-display antialiased text-slate-900 min-h-screen flex flex-col">
+    <!-- Loading Screen -->
+    <div id="loading">
+        <div class="loading-spinner mb-6"></div>
+        <div class="text-white text-xl font-bold">Alex's Game Center</div>
+        <div class="text-blue-200 mt-2">載入中...</div>
     </div>
+    
+    <!-- Header -->
+    <header class="sticky top-0 z-50 w-full bg-white/90 backdrop-blur-md border-b border-slate-200 transition-colors duration-300">
+        <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex h-16 items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-white shadow-md shadow-primary/20">
+                        <span class="material-symbols-outlined text-xl">stadia_controller</span>
+                    </div>
+                    <h2 class="text-lg font-bold tracking-tight text-slate-900">Alex's Game Center</h2>
+                </div>
+                <nav class="hidden md:flex items-center gap-8">
+                    <a class="text-sm font-bold text-primary border-b-2 border-primary pb-1" href="#">首頁</a>
+                    <a class="text-sm font-medium text-slate-600 hover:text-primary transition-colors" href="#games">遊戲庫</a>
+                    <a class="text-sm font-medium text-slate-600 hover:text-primary transition-colors" href="#">排行榜</a>
+                    <a class="text-sm font-medium text-slate-600 hover:text-primary transition-colors" href="#">關於我們</a>
+                </nav>
+                <div class="flex items-center gap-3">
+                    <button class="hidden sm:flex items-center justify-center h-9 px-4 rounded-lg bg-white border border-slate-200 text-slate-700 text-sm font-bold hover:bg-slate-50 transition-colors shadow-sm">
+                        <span>註冊</span>
+                    </button>
+                    <button class="flex items-center justify-center h-9 px-4 rounded-lg bg-primary text-white text-sm font-bold hover:bg-primary-light transition-colors shadow-md shadow-primary/20">
+                        <span>登入</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <main class="flex-grow">
+        <section class="hero-gradient text-white overflow-hidden">
+            <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
+                <div class="grid md:grid-cols-2 gap-12 items-center">
+                    <div class="space-y-6">
+                        <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
+                            歡迎來到<br>
+                            <span class="text-yellow-300">Alex's Game Center</span>
+                        </h1>
+                        <p class="text-lg md:text-xl text-blue-100 max-w-2xl">
+                            探索精彩遊戲世界！我們精選了多款經典遊戲，讓您享受無限樂趣。
+                            從經典貪食蛇到刺激的跳跳鳥，挑戰自我，創造高分紀錄！
+                        </p>
+                        <div class="flex flex-wrap gap-4 pt-4">
+                            <a href="#games" class="inline-flex items-center justify-center h-12 px-8 rounded-lg bg-white text-primary text-base font-bold hover:bg-blue-50 transition-colors shadow-lg">
+                                <span class="material-symbols-outlined mr-2">play_arrow</span>
+                                開始遊戲
+                            </a>
+                            <button class="inline-flex items-center justify-center h-12 px-8 rounded-lg bg-transparent border-2 border-white text-white text-base font-bold hover:bg-white/10 transition-colors">
+                                <span class="material-symbols-outlined mr-2">info</span>
+                                了解更多
+                            </button>
+                        </div>
+                    </div>
+                    <div class="relative">
+                        <div class="relative z-10 w-full max-w-md mx-auto">
+                            <div class="absolute -top-6 -left-6 w-32 h-32 bg-yellow-400/20 rounded-full blur-2xl"></div>
+                            <div class="absolute -bottom-6 -right-6 w-40 h-40 bg-blue-400/20 rounded-full blur-2xl"></div>
+                            <div class="relative bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-2xl">
+                                <div class="flex items-center gap-4 mb-6">
+                                    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20">
+                                        <span class="material-symbols-outlined text-2xl text-white">sports_esports</span>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-xl font-bold">精選遊戲</h3>
+                                        <p class="text-blue-100">每日更新，精彩不斷</p>
+                                    </div>
+                                </div>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                                        <div class="flex items-center gap-3">
+                                            <div class="h-8 w-8 rounded-md bg-green-500/20 flex items-center justify-center">
+                                                <span class="material-symbols-outlined text-green-400 text-sm">play_circle</span>
+                                            </div>
+                                            <span class="font-medium">貪食蛇遊戲</span>
+                                        </div>
+                                        <span class="text-sm text-green-300 font-bold">熱門中</span>
+                                    </div>
+                                    <div class="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                                        <div class="flex items-center gap-3">
+                                            <div class="h-8 w-8 rounded-md bg-blue-500/20 flex items-center justify-center">
+                                                <span class="material-symbols-outlined text-blue-400 text-sm">extension</span>
+                                            </div>
+                                            <span class="font-medium">五子棋對戰 AI</span>
+                                        </div>
+                                        <span class="text-sm text-blue-300 font-bold">策略遊戲</span>
+                                    </div>
+                                    <div class="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                                        <div class="flex items-center gap-3">
+                                            <div class="h-8 w-8 rounded-md bg-purple-500/20 flex items-center justify-center">
+                                                <span class="material-symbols-outlined text-purple-400 text-sm">flight</span>
+                                            </div>
+                                            <span class="font-medium">跳跳鳥 Pro</span>
+                                        </div>
+                                        <span class="text-sm text-purple-300 font-bold">挑戰模式</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Games Section -->
+        <section id="games" class="py-16 md:py-24 gradient-bg">
+            <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4">精選遊戲庫</h2>
+                    <p class="text-lg text-slate-600 max-w-2xl mx-auto">
+                        從經典到創新，我們為您準備了多款精彩遊戲。點擊卡片立即開始遊玩！
+                    </p>
+                </div>
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Game 1: Snake -->
+                    <div class="game-card bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-lg hover:shadow-2xl transition-all duration-300">
+                        <div class="relative h-48 bg-gradient-to-br from-green-500 to-emerald-600 overflow-hidden">
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <div class="text-white text-center p-6">
+                                    <span class="material-symbols-outlined text-6xl mb-2">snake</span>
+                                    <h3 class="text-2xl font-bold">貪食蛇</h3>
+                                </div>
+                            </div>
+                            <div class="absolute top-4 right-4">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm text-white text-xs font-bold">
+                                    🎮 經典遊戲
+                                </span>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-xl font-bold text-slate-900">貪食蛇遊戲</h3>
+                                <div class="flex items-center text-amber-500">
+                                    <span class="material-symbols-outlined text-sm">star</span>
+                                    <span class="ml-1 font-bold">4.8</span>
+                                </div>
+                            </div>
+                            <p class="text-slate-600 mb-6">
+                                經典的貪食蛇遊戲！控制蛇吃食物變長，避免撞到牆壁或自己的身體。
+                                挑戰你的反應極限，創造最高分紀錄！
+                            </p>
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="flex items-center text-slate-500 text-sm">
+                                    <span class="material-symbols-outlined text-sm mr-1">schedule</span>
+                                    <span>遊玩時間: 5-15分鐘</span>
+                                </div>
+                                <div class="flex items-center text-slate-500 text-sm">
+                                    <span class="material-symbols-outlined text-sm mr-1">group</span>
+                                    <span>單人遊戲</span>
+                                </div>
+                            </div>
+                            <a href="game1.html" class="block w-full py-3 px-4 text-center rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold hover:from-green-600 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg">
+                                <span class="material-symbols-outlined align-middle mr-2">play_arrow</span>
+                                開始遊戲
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Game 2: Gomoku -->
+                    <div class="game-card bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-lg hover:shadow-2xl transition-all duration-300">
+                        <div class="relative h-48 bg-gradient-to-br from-blue-600 to-indigo-700 overflow-hidden">
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <div class="text-white text-center p-6">
+                                    <span class="material-symbols-outlined text-6xl mb-2">grid_on</span>
+                                    <h3 class="text-2xl font-bold">五子棋</h3>
+                                </div>
+                            </div>
+                            <div class="absolute top-4 right-4">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm text-white text-xs font-bold">
+                                    🧠 策略對戰
+                                </span>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-xl font-bold text-slate-900">五子棋對戰 AI</h3>
+                                <div class="flex items-center text-amber-500">
+                                    <span class="material-symbols-outlined text-sm">star</span>
+                                    <span class="ml-1 font-bold">4.9</span>
+                                </div>
+                            </div>
+                            <p class="text-slate-600 mb-6">
+                                挑戰 AI 的五子棋對戰！在 15×15 棋盤上連成五子即可獲勝。
+                                多種難度選擇，從簡單到專家級，測試你的策略思維！
+                            </p>
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="flex items-center text-slate-500 text-sm">
+                                    <span class="material-symbols-outlined text-sm mr-1">schedule</span>
+                                    <span>遊玩時間: 10-30分鐘</span>
+                                </div>
+                                <div class="flex items-center text-slate-500 text-sm">
+                                    <span class="material-symbols-outlined text-sm mr-1">smart_toy</span>
+                                    <span>AI 對戰</span>
+                                </div>
+                            </div>
+                            <a href="game2.html" class="block w-full py-3 px-4 text-center rounded-lg bg-gradient-to-r from-blue-600 to-indigo-700 text-white font-bold hover:from-blue-700 hover:to-indigo-800 transition-all shadow-md hover:shadow-lg">
+                                <span class="material-symbols-outlined align-middle mr-2">play_arrow</span>
+                                開始遊戲
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Game 3: Flappy Bird -->
+                    <div class="game-card bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-lg hover:shadow-2xl transition-all duration-300">
+                        <div class="relative h-48 bg-gradient-to-br from-purple-600 to-pink-600 overflow-hidden">
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <div class="text-white text-center p-6">
+                                    <span class="material-symbols-outlined text-6xl mb-2">flight</span>
+                                    <h3 class="text-2xl font-bold">跳跳鳥</h3>
+                                </div>
+                            </div>
+                            <div class="absolute top-4 right-4">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm text-white text-xs font-bold">
+                                    ⚡ 快速反應
+                                </span>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-xl font-bold text-slate-900">跳跳鳥 Pro</h3>
+                                <div class="flex items-center text-amber-500">
+                                    <span class="material-symbols-outlined text-sm">star</span>
+                                    <span class="ml-1 font-bold">4.7</span>
+                                </div>
+                            </div>
+                            <p class="text-slate-600 mb-6">
+                                經典的跳跳鳥遊戲升級版！控制小鳥穿越障礙，收集星星獲得雙倍分數。
+                                多種難度選擇，挑戰你的反應速度和節奏感！
+                            </p>
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="flex items-center text-slate-500 text-sm">
+                                    <span class="material-symbols-outlined text-sm mr-1">schedule</span>
+                                    <span>遊玩時間: 3-10分鐘</span>
+                                </div>
+                                <div class="flex items-center text-slate-500 text-sm">
+                                    <span class="material-symbols-outlined text-sm mr-1">bolt</span>
+                                    <span>快速反應</span>
+                                </div>
+                            </div>
+                            <a href="game3.html" class="block w-full py-3 px-4 text-center rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold hover:from-purple-700 hover:to-pink-700 transition-all shadow-md hover:shadow-lg">
+                                <span class="material-symbols-outlined align-middle mr-2">play_arrow</span>
+                                開始遊戲
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Call to Action -->
+                <div class="mt-16 text-center">
+                    <div class="inline-block max-w-2xl mx-auto p-8 bg-gradient-to-r from-primary to-primary-light rounded-2xl shadow-xl">
+                        <h3 class="text-2xl font-bold text-white mb-4">準備好開始遊戲了嗎？</h3>
+                        <p class="text-blue-100 mb-6">
+                            立即選擇一款遊戲開始遊玩！所有遊戲均免費，無需註冊即可享受。
+                        </p>
+                        <a href="#games" class="inline-flex items-center justify-center h-12 px-8 rounded-lg bg-white text-primary text-base font-bold hover:bg-blue-50 transition-colors shadow-lg">
+                            <span class="material-symbols-outlined mr-2">sports_esports</span>
+                            瀏覽所有遊戲
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-white py-12">
+        <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
+                            <span class="material-symbols-outlined text-xl">stadia_controller</span>
+                        </div>
+                        <h3 class="text-lg font-bold">Alex's Game Center</h3>
+                    </div>
+                    <p class="text-slate-400 text-sm">
+                        提供精選經典遊戲，讓您隨時享受遊戲樂趣。
+                    </p>
+                </div>
+                <div>
+                    <h4 class="font-bold mb-4">遊戲分類</h4>
+                    <ul class="space-y-2 text-slate-400 text-sm">
+                        <li><a href="#" class="hover:text-white transition-colors">經典遊戲</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">策略遊戲</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">反應遊戲</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">益智遊戲</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold mb-4">快速連結</h4>
+                    <ul class="space-y-2 text-slate-400 text-sm">
+                        <li><a href="#" class="hover:text-white transition-colors">首頁</a></li>
+                        <li><a href="#games" class="hover:text-white transition-colors">遊戲庫</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">排行榜</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">關於我們</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold mb-4">聯絡我們</h4>
+                    <p class="text-slate-400 text-sm mb-4">
+                        有任何建議或問題嗎？歡迎與我們聯繫。
+                    </p>
+                    <div class="flex gap-3">
+                        <button class="flex items-center justify-center h-9 px-4 rounded-lg bg-white/10 text-white text-sm font-bold hover:bg-white/20 transition-colors">
+                            <span class="material-symbols-outlined text-sm mr-1">mail</span>
+                            聯絡
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-slate-800 mt-8 pt-8 text-center text-slate-500 text-sm">
+                <p>© 2023 Alex's Game Center. 保留所有權利。</p>
+                <p class="mt-2">本網站僅供學習與娛樂使用。</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript for interactive elements -->
+    <script>
+        // Handle page loading
+        window.addEventListener('load', function() {
+            // Add loaded class to body after a short delay for smooth transition
+            setTimeout(function() {
+                document.body.classList.add('loaded');
+                
+                // Remove loading element from DOM after animation completes
+                setTimeout(function() {
+                    const loadingElement = document.getElementById('loading');
+                    if (loadingElement && loadingElement.parentNode) {
+                        loadingElement.parentNode.removeChild(loadingElement);
+                    }
+                }, 500);
+            }, 800);
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Game card hover effects enhancement
+        document.querySelectorAll('.game-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-8px)';
+            });
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+
+        // Login/Register button interactions (placeholder)
+        document.querySelectorAll('button').forEach(button => {
+            if (button.textContent.includes('登入') || button.textContent.includes('註冊')) {
+                button.addEventListener('click', function() {
+                    alert('此功能目前為示範用途。在實際應用中，這裡會實現登入/註冊功能。');
+                });
+            }
+        });
+
+        // Add click sound effect to game cards (optional)
+        document.querySelectorAll('.game-card a').forEach(link => {
+            link.addEventListener('click', function() {
+                // Optional: Add sound effect here
+                console.log('開始遊戲: ' + this.getAttribute('href'));
+            });
+        });
+
+        console.log('Alex\'s Game Center 已載入完成！');
+    </script>
 </body>
 </html>
